@@ -1,30 +1,43 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view />
+  <div id="app">
+    <NavBar />
+    <div class="container">
+      <router-view />
+      <!-- <div>
+        <HomeView />
+      </div> -->
+      <!-- <div>
+        <MovieSearchView />
+      </div> -->
+    </div>
+  </div>
 </template>
 
+<script>
+import NavBar from "./Navigation/NavBar.vue";
+// import MovieSearchView from "./views/MovieSearchView.vue";
+//import HomeView from "./views/HomeView.vue";
+
+export default {
+  name: "App",
+  components: {
+    NavBar,
+    // MovieSearchView,
+    //HomeView,
+  },
+};
+</script>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to right, #0a192f, #102a44);
+  color: white;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
-
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
+.container {
+  display: grid;
+  align-items: center;
 }
 </style>
