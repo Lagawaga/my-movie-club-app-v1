@@ -14,12 +14,7 @@
 </template>
 
 <script>
-import {
-  getAllMovies,
-  createMovie,
-  deleteMovie,
-  markAsWatched,
-} from "../firebase";
+import { getAllMovies, createMovie, deleteMovie } from "../firebase";
 
 export default {
   props: {
@@ -28,6 +23,7 @@ export default {
     id: Number,
     movieObj: Object,
   },
+
   data() {
     return {
       isAlreadyInList: false,
@@ -58,7 +54,8 @@ export default {
     handleUpdateButtonClick() {
       if (!this.watched && this.isAlreadyInList) {
         console.log("watching movie");
-        this.watchMovie(this.movieObj);
+        this.$emit("open-review-modal", this.movieObj);
+        //this.watchMovie(this.movieObj);
       }
     },
     async postMovie(movie) {
@@ -67,9 +64,9 @@ export default {
     async removeMovie(movie) {
       await deleteMovie(movie.id);
     },
-    async watchMovie(movie) {
-      await markAsWatched(movie.id);
-    },
+    // async watchMovie(movie) {
+    //   await markAsWatched(movie.id);
+    // },
   },
 };
 </script>
@@ -143,5 +140,9 @@ export default {
   margin-right: 5px;
   font-size: 20px;
   line-height: 1;
+}
+
+.modal-container {
+  z-index: 999;
 }
 </style>

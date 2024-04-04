@@ -1,6 +1,6 @@
 <template>
   <div class="modal" v-if="modelValue" @click="closeModal">
-    <div class="modal-content">
+    <div class="modal-content" @click.stop>
       <span class="close" @click="closeModal">&times;</span>
       <slot></slot>
     </div>
@@ -37,12 +37,15 @@ export default {
 }
 
 .modal-content {
+  max-width: 900px;
   background-color: #fefefe;
   margin: 10% auto;
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
-  color: black;
+  border-radius: 2%;
+  color: rgb(255, 255, 255);
+  background-color: rgb(91, 106, 136);
 }
 
 .close {

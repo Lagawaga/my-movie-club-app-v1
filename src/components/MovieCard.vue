@@ -19,13 +19,20 @@
         :id="id"
         caption="Add Movie"
         :movieObj="movieObj"
+        @open-review-modal="handleOpenReviewModal"
       />
     </div>
     <div class="modal-container">
-      <OverviewModal v-model="isModalVisible">
+      <OverviewModal v-model="isOverviewModalVisible">
         <p>{{ overview }}</p>
         <p>{{ genres }}</p>
         <p>Release Date: {{ releaseDate }}</p>
+      </OverviewModal>
+    </div>
+    <div class="modal-container" v-if="isReviewModalVisible">
+      <OverviewModal v-model="isReviewModalVisible">
+        <h2>Who's Speaking?</h2>
+        <ReviewMovie :movieObj="movieObj" />
       </OverviewModal>
     </div>
 
@@ -41,6 +48,7 @@ import StarRating from "./StarRating.vue";
 import PrimaryButton from "./PrimaryButton.vue";
 import AddButton from "./AddButton.vue";
 import OverviewModal from "./OverviewModal.vue";
+import ReviewMovie from "./ReviewMovie.vue";
 import { getAllMovies } from "../firebase";
 
 export default {
@@ -60,10 +68,12 @@ export default {
     PrimaryButton,
     OverviewModal,
     AddButton,
+    ReviewMovie,
   },
   data() {
     return {
-      isModalVisible: false,
+      isOverviewModalVisible: false,
+      isReviewModalVisible: false,
       isAlreadyInList: false,
       movieObj: {
         id: this.id,
@@ -91,8 +101,10 @@ export default {
       }
     },
     showOverview() {
-      this.isModalVisible = true;
-      console.log(this.overview);
+      this.isOverviewModalVisible = true;
+    },
+    handleOpenReviewModal() {
+      this.isReviewModalVisible = true;
     },
     // addMovie() {
     //   this.movieObj = {
@@ -188,7 +200,7 @@ export default {
   display: flex;
   justify-content: center;
   gap: 10px;
-  z-index: 2;
+  z-index: 3;
   top: 250px;
   left: 50px;
   position: relative;
