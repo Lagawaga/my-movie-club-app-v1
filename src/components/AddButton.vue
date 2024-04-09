@@ -1,14 +1,20 @@
 <template>
-  <div v-if="watched">
+  <div v-if="watched || iswatched">
     <button disabled class="add-btn">Watched</button>
   </div>
-  <div v-if="!watched && isAlreadyInList" @click="handleUpdateButtonClick">
+  <div
+    v-if="!watched && !iswatched && isAlreadyInList"
+    @click="handleUpdateButtonClick"
+  >
     <button class="add-btn">Watch</button>
   </div>
   <div v-if="!isAlreadyInList" @click="handleAddRemoveButtonClick">
     <button class="add-btn">Add</button>
   </div>
-  <div v-if="isAlreadyInList && !watched" @click="handleAddRemoveButtonClick">
+  <div
+    v-if="isAlreadyInList && !watched && !iswatched"
+    @click="handleAddRemoveButtonClick"
+  >
     <button class="remove-btn">Remove</button>
   </div>
 </template>
@@ -37,6 +43,10 @@ export default {
       try {
         const movies = await getAllMovies();
         this.isAlreadyInList = movies.some((movie) => movie.id === this.id);
+        if (this.isAlreadyInList) {
+          const watchedMovie = movies.find((movie) => movie.id === this.id);
+          this.iswatched = watchedMovie.watched ? 1 : 0;
+        }
       } catch (error) {
         console.error("Error fetching movies:", error);
       }

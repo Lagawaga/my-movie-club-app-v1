@@ -71,13 +71,18 @@
   <span v-if="averageScore > 0">{{ averageScore }} average</span>
   <br />
   <br />
-  <PrimaryButton @click="submitReview" caption="Submit Review"></PrimaryButton>
+  <PrimaryButton
+    @click="submitReview"
+    :disabled="successfulSubmit"
+    :caption="!successfulSubmit ? 'Submit Review' : 'Submitted'"
+  ></PrimaryButton>
+  <span v-if="successfulSubmit">Please close modal</span>
 </template>
 
 <script>
 //deprecated
 // import { vMaska } from "maska";
-import { markAsWatched } from "../firebase";
+import { markAsWatched, createReview } from "../firebase";
 import PrimaryButton from "./PrimaryButton.vue";
 
 export default {
@@ -100,9 +105,12 @@ export default {
         joshScore: "",
         ryanComments: "",
         ryanScore: "",
+        movieId: this.movieObj["id"],
+        averageScore: 0,
       },
 
       hoveredRating: 0,
+      successfulSubmit: false,
     };
   },
   mounted() {},
@@ -132,6 +140,17 @@ export default {
     },
     setRating(rating) {
       this.allReviews[`${this.reviewer}Score`] = rating;
+    },
+    submitReview() {
+      this.allReviews["averageScore"] = this.averageScore;
+      this.postReview(this.allReviews);
+      this.watchMovie(this.movieObj);
+      this.setReviewer("");
+
+      this.successfulSubmit = true;
+    },
+    async postReview(review) {
+      await createReview(review);
     },
   },
   computed: {

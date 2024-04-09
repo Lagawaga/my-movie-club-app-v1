@@ -9,7 +9,7 @@
     <div class="btn-container">
       <PrimaryButton
         caption="See Reviews"
-        @click="showOverview()"
+        @click="showReview()"
         v-if="watched == 1 && isAlreadyInList"
       />
       <PrimaryButton caption="Overview" @click="showOverview()" v-else />
@@ -26,6 +26,7 @@
       <OverviewModal v-model="isOverviewModalVisible">
         <p>{{ overview }}</p>
         <p>{{ genres }}</p>
+        {{ id }}
         <p>Release Date: {{ releaseDate }}</p>
       </OverviewModal>
     </div>
@@ -33,6 +34,12 @@
       <OverviewModal v-model="isReviewModalVisible">
         <h2>Who's Speaking?</h2>
         <ReviewMovie :movieObj="movieObj" />
+      </OverviewModal>
+    </div>
+    <div class="modal-container" v-if="isReviewVisible">
+      <OverviewModal v-model="isReviewVisible">
+        <h2>RECAP</h2>
+        <ReviewsView :review="review" />
       </OverviewModal>
     </div>
 
@@ -49,7 +56,9 @@ import PrimaryButton from "./PrimaryButton.vue";
 import AddButton from "./AddButton.vue";
 import OverviewModal from "./OverviewModal.vue";
 import ReviewMovie from "./ReviewMovie.vue";
-import { getAllMovies } from "../firebase";
+import ReviewsView from "../views/ReviewsView.vue";
+
+import { getAllMovies, getReview } from "../firebase";
 
 export default {
   props: {
@@ -69,12 +78,15 @@ export default {
     OverviewModal,
     AddButton,
     ReviewMovie,
+    ReviewsView,
   },
   data() {
     return {
       isOverviewModalVisible: false,
       isReviewModalVisible: false,
+      isReviewVisible: false,
       isAlreadyInList: false,
+      review: "",
       movieObj: {
         id: this.id,
         title: this.title,
@@ -106,6 +118,25 @@ export default {
     handleOpenReviewModal() {
       this.isReviewModalVisible = true;
     },
+    async showReview() {
+      this.isReviewVisible = true;
+      console.log(this.movieObj["id"]);
+      try {
+        this.review = await this.retrieveMovie(this.movieObj["id"]);
+        console.log(this.review.aidanComments);
+      } catch (error) {
+        console.error("Error retrieving movie:", error);
+      }
+    },
+    async retrieveMovie(movieId) {
+      try {
+        return await getReview(movieId);
+      } catch (error) {
+        console.error("Error retrieving movie:", error);
+        throw error;
+      }
+    },
+
     // addMovie() {
     //   this.movieObj = {
     //     id: this.id,
