@@ -4,7 +4,7 @@
       <input
         class="user-input"
         v-model="query"
-        @keyup.enter="searchMovies"
+        @keyup.enter="updateQuery"
         placeholder="..."
       />
     </div>
@@ -23,6 +23,7 @@
           :imgSrc="`https://image.tmdb.org/t/p/w200${movie.poster_path}`"
           :imgBckgrdSrc="`https://image.tmdb.org/t/p/original${movie.backdrop_path}`"
           :watched="movie.watched"
+          @movie-added="handleMovieAdded"
         />
       </div>
     </div>
@@ -43,6 +44,14 @@ export default {
       movies: [],
     };
   },
+  mounted() {
+    const savedQuery = sessionStorage.getItem("query");
+    if (savedQuery) {
+      this.query = savedQuery;
+      // Perform search with the retrieved query
+      this.searchMovies();
+    }
+  },
 
   methods: {
     async searchMovies() {
@@ -51,10 +60,18 @@ export default {
           `https://api.themoviedb.org/3/search/movie?api_key=dea03f4311fb3f1b3fbfad92dd0aacfd&query=${this.query}`
         );
         this.movies = response.data.results;
-        console.log(this.movies);
       } catch (error) {
         console.error(error);
       }
+    },
+    handleMovieAdded() {
+      sessionStorage.setItem("query", this.query);
+      window.location.reload();
+    },
+
+    updateQuery() {
+      sessionStorage.setItem("query", this.query);
+      this.searchMovies();
     },
   },
 };

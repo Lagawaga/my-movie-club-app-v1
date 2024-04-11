@@ -20,6 +20,8 @@
         caption="Add Movie"
         :movieObj="movieObj"
         @open-review-modal="handleOpenReviewModal"
+        @open-addmovie-modal="handleOpenAddMovieModal"
+        @movie-added="handleMovieAdded"
       />
     </div>
     <div class="modal-container">
@@ -42,6 +44,17 @@
         <ReviewsView :review="review" />
       </OverviewModal>
     </div>
+    <div class="modal-container" v-if="isAddMovieViewVisible">
+      <OverviewModal v-model="isAddMovieViewVisible">
+        <h2>Who's Picking?</h2>
+        <AddMovieView
+          :movieObj="movieObj"
+          @picked-by-update="updatePickedBy"
+          @close-addmovie-modal="handleCloseAddMovieModal"
+          @movie-added="handleMovieAdded"
+        />
+      </OverviewModal>
+    </div>
 
     <div class="movie-info">
       <h1>{{ title }}</h1>
@@ -57,6 +70,7 @@ import AddButton from "./AddButton.vue";
 import OverviewModal from "./OverviewModal.vue";
 import ReviewMovie from "./ReviewMovie.vue";
 import ReviewsView from "../views/ReviewsView.vue";
+import AddMovieView from "../views/AddMovieView.vue";
 
 import { getAllMovies, getReview } from "../firebase";
 
@@ -79,12 +93,14 @@ export default {
     AddButton,
     ReviewMovie,
     ReviewsView,
+    AddMovieView,
   },
   data() {
     return {
       isOverviewModalVisible: false,
       isReviewModalVisible: false,
       isReviewVisible: false,
+      isAddMovieViewVisible: false,
       isAlreadyInList: false,
       review: "",
       movieObj: {
@@ -104,6 +120,7 @@ export default {
     this.checkIfAlreadyInList();
   },
   methods: {
+    //move this to movie search so it's only called when movies are searched
     async checkIfAlreadyInList() {
       try {
         const movies = await getAllMovies();
@@ -118,12 +135,20 @@ export default {
     handleOpenReviewModal() {
       this.isReviewModalVisible = true;
     },
+    handleOpenAddMovieModal() {
+      this.isAddMovieViewVisible = true;
+    },
+    handleCloseAddMovieModal() {
+      this.isAddMovieViewVisible = false;
+    },
+    handleMovieAdded() {
+      this.$emit("movie-added");
+    },
     async showReview() {
       this.isReviewVisible = true;
-      console.log(this.movieObj["id"]);
+
       try {
         this.review = await this.retrieveMovie(this.movieObj["id"]);
-        console.log(this.review.aidanComments);
       } catch (error) {
         console.error("Error retrieving movie:", error);
       }
@@ -136,7 +161,10 @@ export default {
         throw error;
       }
     },
-
+    updatePickedBy(reviewer) {
+      // Update the movieObj prop with the new reviewer
+      this.movieObj.pickedBy = reviewer;
+    },
     // addMovie() {
     //   this.movieObj = {
     //     id: this.id,

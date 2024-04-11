@@ -76,6 +76,7 @@
     :disabled="successfulSubmit"
     :caption="!successfulSubmit ? 'Submit Review' : 'Submitted'"
   ></PrimaryButton>
+  <br />
   <span v-if="successfulSubmit">Please close modal</span>
 </template>
 

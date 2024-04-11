@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { getAllMovies, createMovie, deleteMovie } from "../firebase";
+import { getAllMovies, deleteMovie } from "../firebase";
 
 export default {
   props: {
@@ -53,30 +53,22 @@ export default {
     },
     handleAddRemoveButtonClick() {
       if (!this.isAlreadyInList) {
-        console.log("it worked");
-        this.postMovie(this.movieObj);
+        this.$emit("open-addmovie-modal", this.movieObj);
       }
       if (this.isAlreadyInList) {
-        console.log("deleting movie");
         this.removeMovie(this.movieObj);
       }
     },
     handleUpdateButtonClick() {
       if (!this.watched && this.isAlreadyInList) {
-        console.log("watching movie");
         this.$emit("open-review-modal", this.movieObj);
-        //this.watchMovie(this.movieObj);
       }
     },
-    async postMovie(movie) {
-      await createMovie(movie);
-    },
+
     async removeMovie(movie) {
       await deleteMovie(movie.id);
+      this.$emit("movie-added");
     },
-    // async watchMovie(movie) {
-    //   await markAsWatched(movie.id);
-    // },
   },
 };
 </script>
