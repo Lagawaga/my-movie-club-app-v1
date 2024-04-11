@@ -33,6 +33,7 @@
 <script>
 import axios from "axios";
 import MovieCard from "./MovieCard.vue";
+import { TMDB_API_KEY } from "../API_KEY.js";
 
 export default {
   components: {
@@ -50,6 +51,7 @@ export default {
       this.query = savedQuery;
       // Perform search with the retrieved query
       this.searchMovies();
+      console.log(TMDB_API_KEY);
     }
   },
 
@@ -57,7 +59,7 @@ export default {
     async searchMovies() {
       try {
         const response = await axios.get(
-          `https://api.themoviedb.org/3/search/movie?api_key=dea03f4311fb3f1b3fbfad92dd0aacfd&query=${this.query}`
+          `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${this.query}`
         );
         this.movies = response.data.results;
       } catch (error) {

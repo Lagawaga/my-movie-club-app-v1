@@ -39,6 +39,7 @@ export default {
     this.checkIfAlreadyInList();
   },
   methods: {
+    //this should also go into the search - it'sbeing called too many times
     async checkIfAlreadyInList() {
       try {
         const movies = await getAllMovies();
