@@ -18,6 +18,7 @@
       :imgBckgrdSrc="`https://image.tmdb.org/t/p/original${movieObj.imgBckgrdSrc}`"
       :watched="movieObj.watched"
     />
+
     <br />
     <PrimaryButton
       caption="Pick another movie"
@@ -40,7 +41,7 @@
 import PrimaryButton from "@/components/PrimaryButton.vue";
 import MovieCard from "@/components/MovieCard.vue";
 
-import { getCurrentMovie, getMovie, getAllMovies } from "../firebase";
+import { getCurrentMovie, getMovie } from "../firebase";
 
 // @ is an alias to /src
 
@@ -75,7 +76,7 @@ export default {
     async fetchMovieCard(movieId) {
       try {
         this.movieObj = await getMovie(movieId);
-        console.log(this.movieObj);
+
         this.moviePicked = true;
       } catch (error) {
         console.error("Error fetching current movie:", error);
@@ -83,15 +84,6 @@ export default {
     },
     confirmMovieWatched() {
       this.confirmModalVisible = true;
-    },
-    async searchMovies() {
-      try {
-        this.movies = await getAllMovies();
-        this.movies = this.movies.filter((movie) => movie.watched === 0);
-        console.log(this.movies);
-      } catch (error) {
-        console.error(error);
-      }
     },
   },
 };

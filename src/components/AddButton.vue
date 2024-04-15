@@ -1,18 +1,15 @@
 <template>
-  <div v-if="watched || iswatched">
+  <div v-if="watched">
     <button disabled class="add-btn">Watched</button>
   </div>
-  <div
-    v-if="!watched && !iswatched && isAlreadyInList"
-    @click="handleUpdateButtonClick"
-  >
+  <div v-if="!watched && isInList" @click="handleUpdateButtonClick">
     <button class="add-btn">Watch</button>
   </div>
-  <div v-if="!isAlreadyInList" @click="handleAddRemoveButtonClick">
+  <div v-if="!isInList && !watched" @click="handleAddRemoveButtonClick">
     <button class="add-btn">Add</button>
   </div>
   <div
-    v-if="isAlreadyInList && !watched && !iswatched"
+    v-if="isInList && !watched && !iswatched"
     @click="handleAddRemoveButtonClick"
   >
     <button class="remove-btn">Remove</button>
@@ -20,7 +17,9 @@
 </template>
 
 <script>
-import { getAllMovies, deleteMovie } from "../firebase";
+import { deleteMovie } from "../firebase";
+import { computed } from "vue";
+import { useStore } from "vuex";
 
 export default {
   props: {
@@ -29,46 +28,47 @@ export default {
     id: Number,
     movieObj: Object,
   },
+  setup(props) {
+    const store = useStore();
 
-  data() {
+    const moviesList = computed(() => store.getters.getMovies);
+
+    const isInList = computed(() => {
+      const movies = moviesList.value;
+
+      return movies.some((movie) => movie.id === props.id);
+    });
+
     return {
-      isAlreadyInList: false,
+      moviesList,
+      isInList,
     };
   },
+  data() {
+    return {};
+  },
   mounted() {
-    this.checkIfAlreadyInList();
+    //this.checkIfAlreadyInList();
   },
   methods: {
-    //this should also go into the search - it'sbeing called too many times
-    async checkIfAlreadyInList() {
-      try {
-        const movies = await getAllMovies();
-        this.isAlreadyInList = movies.some((movie) => movie.id === this.id);
-        if (this.isAlreadyInList) {
-          const watchedMovie = movies.find((movie) => movie.id === this.id);
-          this.iswatched = watchedMovie.watched ? 1 : 0;
-        }
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-      }
-    },
     handleAddRemoveButtonClick() {
-      if (!this.isAlreadyInList) {
+      if (!this.isInList) {
         this.$emit("open-addmovie-modal", this.movieObj);
       }
-      if (this.isAlreadyInList) {
+      if (this.isInList) {
         this.removeMovie(this.movieObj);
       }
     },
     handleUpdateButtonClick() {
-      if (!this.watched && this.isAlreadyInList) {
+      if (!this.watched && this.isInList) {
         this.$emit("open-review-modal", this.movieObj);
       }
     },
 
     async removeMovie(movie) {
       await deleteMovie(movie.id);
-      this.$emit("movie-added");
+      this.$store.commit("removeMovie", this.id);
+      //this.$emit("movie-added");
     },
   },
 };

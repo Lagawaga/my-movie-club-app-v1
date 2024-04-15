@@ -10,7 +10,7 @@
       <PrimaryButton
         caption="See Reviews"
         @click="showReview()"
-        v-if="watched == 1 && isAlreadyInList"
+        v-if="watched == 1 && isInList"
       />
       <PrimaryButton caption="Overview" @click="showOverview()" v-else />
 
@@ -72,7 +72,9 @@ import ReviewMovie from "./ReviewMovie.vue";
 import ReviewsView from "../views/ReviewsView.vue";
 import AddMovieView from "../views/AddMovieView.vue";
 
-import { getAllMovies, getReview } from "../firebase";
+import { computed } from "vue";
+import { useStore } from "vuex";
+import { getReview } from "../firebase";
 
 export default {
   props: {
@@ -85,6 +87,24 @@ export default {
     id: Number,
     genres: Array,
     watched: Number,
+    isAlreadyInList: Boolean,
+    existingMovies: Array,
+  },
+  setup(props) {
+    const store = useStore();
+
+    const moviesList = computed(() => store.getters.getMovies);
+
+    const isInList = computed(() => {
+      const movies = moviesList.value;
+
+      return movies.some((movie) => movie.id === props.id);
+    });
+
+    return {
+      moviesList,
+      isInList,
+    };
   },
   components: {
     StarRating,
@@ -101,7 +121,8 @@ export default {
       isReviewModalVisible: false,
       isReviewVisible: false,
       isAddMovieViewVisible: false,
-      isAlreadyInList: false,
+      //isAlreadyInList: false,
+      //isInList: false,
       review: "",
       movieObj: {
         id: this.id,
@@ -116,19 +137,8 @@ export default {
       },
     };
   },
-  mounted() {
-    this.checkIfAlreadyInList();
-  },
+
   methods: {
-    //move this to movie search so it's only called when movies are searched
-    async checkIfAlreadyInList() {
-      try {
-        const movies = await getAllMovies();
-        this.isAlreadyInList = movies.some((movie) => movie.id === this.id);
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-      }
-    },
     showOverview() {
       this.isOverviewModalVisible = true;
     },
@@ -165,23 +175,6 @@ export default {
       // Update the movieObj prop with the new reviewer
       this.movieObj.pickedBy = reviewer;
     },
-    // addMovie() {
-    //   this.movieObj = {
-    //     id: this.id,
-    //     title: this.title,
-    //     genres: this.genres,
-    //     overview: this.overview,
-    //     rating: this.rating,
-    //     releaseDate: this.releaseDate,
-    //     imgSrc: this.imgSrc,
-    //     imgBckgrdSrc: this.imgBckgrdSrc,
-    //     watched: 0,
-    //   };
-    //   this.postMovie(this.movieObj);
-    // },
-    // async postMovie(movie) {
-    //   await createMovie(movie);
-    // },
   },
 };
 </script>

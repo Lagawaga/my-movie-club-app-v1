@@ -61,6 +61,8 @@ export default {
     },
     async postMovie(movie) {
       await createMovie(movie);
+
+      this.$store.commit("addMovie", this.movieObj.id);
       this.$emit("movie-added");
       this.$emit("close-addmovie-modal", this.movieObj);
     },

@@ -185,7 +185,7 @@ export const getCurrentMovie = async () => {
         movieId: docSnapshot.id,
         ...docSnapshot.data(),
       };
-      console.log(currentMovieData);
+
       return currentMovieData;
     } else {
       console.error("Current movie not found.");

@@ -22,7 +22,9 @@
           :rating="movie.vote_average"
           :imgSrc="`https://image.tmdb.org/t/p/w200${movie.poster_path}`"
           :imgBckgrdSrc="`https://image.tmdb.org/t/p/original${movie.backdrop_path}`"
-          :watched="movie.watched"
+          :watched="checkWatchedMovies(movie.id)"
+          :isAlreadyInList="checkExistingMovies(movie.id)"
+          :existingMovies="existingMovies"
           @movie-added="handleMovieAdded"
         />
       </div>
@@ -34,24 +36,26 @@
 import axios from "axios";
 import MovieCard from "./MovieCard.vue";
 import { TMDB_API_KEY } from "../API_KEY.js";
+import { getAllMovies } from "../firebase";
 
 export default {
   components: {
     MovieCard,
   },
+
   data() {
     return {
       query: "",
       movies: [],
+      existingMovies: [],
     };
   },
   mounted() {
     const savedQuery = sessionStorage.getItem("query");
     if (savedQuery) {
       this.query = savedQuery;
-      // Perform search with the retrieved query
+
       this.searchMovies();
-      console.log(TMDB_API_KEY);
     }
   },
 
@@ -62,6 +66,7 @@ export default {
           `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${this.query}`
         );
         this.movies = response.data.results;
+        await this.getExistingMovies();
       } catch (error) {
         console.error(error);
       }
@@ -74,6 +79,23 @@ export default {
     updateQuery() {
       sessionStorage.setItem("query", this.query);
       this.searchMovies();
+    },
+    async getExistingMovies() {
+      this.existingMovies = await getAllMovies();
+    },
+    checkExistingMovies(movieId) {
+      this.isAlreadyInList = this.existingMovies.some(
+        (movie) => movie.id === movieId
+      );
+
+      return this.isAlreadyInList;
+    },
+    checkWatchedMovies(movieId) {
+      const watchedMovie = this.existingMovies.find(
+        (movie) => movie.id === movieId
+      );
+
+      return watchedMovie ? watchedMovie.watched : 0;
     },
   },
 };
